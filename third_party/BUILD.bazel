@@ -1,0 +1,76 @@
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
+load("@rules_python//python:defs.bzl", "py_library")
+
+filegroup(
+    name = "torch_mlir_src",
+    srcs = glob(["torch-mlir/**"]),
+)
+
+# Based on https://github.com/llvm/torch-mlir/blob/main/README.md#build
+# compiler and linker flags removed since the toolchain specified in
+# WORKSPACE.bazel takes effect here auttomatically.
+cmake(
+    name = "torch_mlir",
+    cache_entries = {
+        "Python3_FIND_VIRTUALENV": "ONLY",
+        "LLVM_ENABLE_PROJECTS": "mlir",
+        "LLVM_EXTERNAL_PROJECTS": "torch-mlir;torch-mlir-dialects",
+        "LLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR": "$$EXT_BUILD_ROOT$$/third_party/torch-mlir",
+        "LLVM_EXTERNAL_TORCH_MLIR_DIALECTS_SOURCE_DIR": "$$EXT_BUILD_ROOT$$/third_party/torch-mlir/external/llvm-external-projects/torch-mlir-dialects",
+        "MLIR_ENABLE_BINDINGS_PYTHON": "ON",
+        "LLVM_TARGETS_TO_BUILD": "host",
+    },
+    generate_args = ["-G Ninja"],
+    # Install fails with an error similar error to
+    # https://lists.llvm.org/pipermail/llvm-dev/2020-August/144732.html
+    # so we handle it ourselves in postfix_script
+    install = False,
+    lib_source = ":torch_mlir_src",
+    out_binaries = [
+        "llvm-lit",
+        "llvm-tblgen",
+        "mlir-tblgen",
+        "torch-mlir-lsp-server",
+        "torch-mlir-opt",
+    ],
+    out_data_dirs = ["python_packages/torch_mlir"],
+    out_static_libs = [
+        "libTorchMLIRCAPI.a",
+        "libTorchMLIRConversionPasses.a",
+        "libTorchMLIRConversionUtils.a",
+        "libTorchMLIRInitAll.a",
+        "libTorchMLIRRefBackend.a",
+        "libTorchMLIRTMTensorDialect.a",
+        "libTorchMLIRTMTensorPasses.a",
+        "libTorchMLIRTorchConversionDialect.a",
+        "libTorchMLIRTorchConversionPasses.a",
+        "libTorchMLIRTorchDialect.a",
+        "libTorchMLIRTorchPasses.a",
+        "libTorchMLIRTorchToLinalg.a",
+        "libTorchMLIRTorchToSCF.a",
+        "libTorchMLIRTorchToStd.a",
+        "libTorchMLIRTorchToTMTensor.a",
+        "libTorchMLIRTorchToTosa.a",
+        "libTorchMLIRTorchUtils.a",
+    ],
+    postfix_script = " && ".join([
+        "cp bin/* $$INSTALLDIR$$/bin",
+        "cp -r --dereference include/* $$INSTALLDIR$$/include",
+        "cp lib/*.a $$INSTALLDIR$$/lib",
+        "mkdir -p $$INSTALLDIR$$/python_packages/",
+        "cp -r --dereference tools/torch-mlir/python_packages/torch_mlir $$INSTALLDIR$$/python_packages/",
+    ]),
+    targets = ["tools/torch-mlir/all"],
+    working_directory = "external/llvm-project/llvm",
+)
+
+filegroup(
+    name = "torch_mlir_py_srcs",
+    srcs = [":torch_mlir/python_packages/torch_mlir/**"],
+)
+
+py_library(
+    name = "torch_mlir_py",
+    srcs = [":torch_mlir_py_srcs"],  # TODO: Figure out how to access dir from out_data_dirs above
+    srcs_version = "PY3",
+)
