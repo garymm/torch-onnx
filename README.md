@@ -2,6 +2,12 @@
 
 ## Setup
 
+Current state and overview:
+* Bazel can build torch_mlir, but I don't know how to extract the Python packages
+  that it builds for use in other things.
+* So we're using Bazel to manage just the C++ code and using `pip` to install the
+  python packages.
+
 ### Create Anaconda environment
 
 Create a new [anaconda](https://anaconda.org) environment for this repo and activate it.
@@ -12,12 +18,37 @@ deactivating the environment: `layout anaconda <env name>`.
 
 ```sh
 git submodule update --init --recursive
-conda install -c conda-forge bazel buildifier python
-# ensure python is the one from conda env
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+# 3.9 to be compatible with torch-mlir pip packages.
+conda install -c conda-forge bazel buildifier python=3.9
+# So that python can find libpython.
+# I think the better way to handle this would be to set LD_LIBRARY_PATH="${CONDA_PREFIX}/lib",
+# but then I hit this issue: https://stackoverflow.com/questions/51408698.
+sudo apt-get install libpython3.9
+# ensure python is the one from conda env. If it's not, deactivate and activate.
 which python
-pip install -r third_party/torch-mlir/requirements.txt
+third_party/pip_install.sh
 ```
 
 ### Build and test
 
-TODO
+Build torch-mlir:
+
+```sh
+bazel build //third_party:torch_mlir
+```
+
+Test Python is set up properly:
+
+```sh
+python third_party/torch-mlir/python/test/annotations-sugar.py
+```
+
+## TODO
+
+* Write a C++ program that takes in a TorchScript program and converts it to Torch MLIR dialect.
+  Something like what this is doing in Python:
+  https://github.com/llvm/torch-mlir/blob/5d6c4f48dcdc64a09fdd338170d04a95a60b4386/python/torch_mlir_e2e_test/torchscript/framework.py
+* Install onnx-mlir
+* Start to lower from Torch dialect to ONNXDialect

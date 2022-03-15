@@ -9,24 +9,6 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.7.0.tar.gz",
 )
 
-# TODO: Switch to pip_install once https://github.com/bazelbuild/rules_python/issues/649
-# is resolved.
-# load("@rules_python//python:pip.bzl", "pip_install")
-
-# # This only works in WORKSPACE, not BUILD files.
-# pip_install(
-#     name = "torch-mlir_pip",
-#     # TODO: once rules_python is released again, use this
-#     #     python_interpreter = interpreter,
-#     requirements = "torch-mlir/requirements.txt",
-# )
-
-# load("@rules_python//python:repositories.bzl", "python_register_toolchains")
-# python_register_toolchains(
-#     name = "python310",
-#     python_version = "3.10",
-# )
-
 http_archive(
     name = "rules_foreign_cc",
     sha256 = "bcd0c5f46a49b85b384906daae41d277b3dc0ff27c7c752cc51e43048a58ec83",

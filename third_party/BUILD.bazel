@@ -1,5 +1,4 @@
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
-load("@rules_python//python:defs.bzl", "py_library")
 
 filegroup(
     name = "torch_mlir_src",
@@ -33,7 +32,9 @@ cmake(
         "torch-mlir-lsp-server",
         "torch-mlir-opt",
     ],
-    out_data_dirs = ["python_packages/torch_mlir"],
+    # TODO: Figure out how to access out_data_dirs and turn it into a py_library.
+    # https://github.com/bazelbuild/rules_python/issues/652
+    out_data_dirs = ["python_packages"],
     out_static_libs = [
         "libTorchMLIRCAPI.a",
         "libTorchMLIRConversionPasses.a",
@@ -57,20 +58,8 @@ cmake(
         "cp bin/* $$INSTALLDIR$$/bin",
         "cp -r --dereference include/* $$INSTALLDIR$$/include",
         "cp lib/*.a $$INSTALLDIR$$/lib",
-        "mkdir -p $$INSTALLDIR$$/python_packages/",
-        "cp -r --dereference tools/torch-mlir/python_packages/torch_mlir $$INSTALLDIR$$/python_packages/",
+        "cp -r --dereference tools/torch-mlir/python_packages/torch_mlir/* $$INSTALLDIR$$/python_packages",
     ]),
     targets = ["tools/torch-mlir/all"],
     working_directory = "external/llvm-project/llvm",
-)
-
-filegroup(
-    name = "torch_mlir_py_srcs",
-    srcs = [":torch_mlir/python_packages/torch_mlir/**"],
-)
-
-py_library(
-    name = "torch_mlir_py",
-    srcs = [":torch_mlir_py_srcs"],  # TODO: Figure out how to access dir from out_data_dirs above
-    srcs_version = "PY3",
 )
