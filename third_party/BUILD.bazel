@@ -61,5 +61,6 @@ cmake(
         "cp -r --dereference tools/torch-mlir/python_packages/torch_mlir/* $$INSTALLDIR$$/python_packages",
     ]),
     targets = ["tools/torch-mlir/all"],
+    visibility = ["//transforms:__subpackages__"],
     working_directory = "external/llvm-project/llvm",
 )

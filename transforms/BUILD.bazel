@@ -1,0 +1,8 @@
+cc_library(
+    name = "transforms",
+    srcs = [
+        "passes.cpp",
+        "passes.h",
+    ],
+    deps = ["//third_party:torch_mlir"],
+)
