@@ -44,11 +44,3 @@ Test Python is set up properly:
 ```sh
 python third_party/torch-mlir/python/test/annotations-sugar.py
 ```
-
-## TODO
-
-* Write a C++ program that takes in a TorchScript program and converts it to Torch MLIR dialect.
-  Something like what this is doing in Python:
-  https://github.com/llvm/torch-mlir/blob/5d6c4f48dcdc64a09fdd338170d04a95a60b4386/python/torch_mlir_e2e_test/torchscript/framework.py
-* Install onnx-mlir
-* Start to lower from Torch dialect to ONNXDialect
