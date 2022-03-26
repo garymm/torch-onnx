@@ -1,8 +1,8 @@
 # direnv
 .envrc
 
-# Bazel
-bazel-*
+# build output
+build
 
 # IDEs
 .vscode

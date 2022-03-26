@@ -1,3 +1,5 @@
+#include "mlir/Transforms/Passes.h"
+#include "mlir/Pass/PassManager.h"
 #include "torch-onnx/transforms/passes.h"
 
 namespace torch_onnx {
@@ -15,8 +17,8 @@ void createTorchBackendToOnnxBackendPipeline(
     OpPassManager &pm,
     const mlir::torch::Torch::TorchLoweringPipelineOptions &options) {
   // Check some invariants to catch errors in a clear way.
-  pm.addPass(mlir::torch::TorchConversion::
-                 createVerifyInvariantsBeforeBackendLoweringPass());
+  // pm.addPass(mlir::torch::TorchConversion::
+  //                createVerifyInvariantsBeforeBackendLoweringPass());
 
   //   pm.addNestedPass<FuncOp>(createConvertTorchToTosaPass());
   //   // Perform rank broadcasting so TosaToLinalg pass works
