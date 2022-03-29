@@ -23,6 +23,7 @@ sudo ln -s lld-12 $(dirname $(which lld-12))/lld
 ```
 
 conda version, not working, but I'd like it to.
+I couldn't figure out how to get libc into the conda environment.
 ```sh
 conda install -c conda-forge libgcc clang lld
 ```
@@ -52,7 +53,17 @@ third_party/pip_install.sh
 Build torch-mlir:
 
 ```sh
-cmake -G Ninja -B build -DCMAKE_C_COMPILER:FILEPATH=clang -DCMAKE_CXX_COMPILER:FILEPATH=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld"
+# cmake configure
+cmake -G Ninja -B build \
+ -DCMAKE_C_COMPILER:FILEPATH=clang-12 \
+ -DCMAKE_CXX_COMPILER:FILEPATH=clang++-12 \
+ -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON \
+ -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+ -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+ -DCMAKE_EXE_LINKER_FLAGS_INIT=-fuse-ld=lld \
+ -DCMAKE_MODULE_LINKER_FLAGS_INIT=-fuse-ld=lld \
+ -DCMAKE_SHARED_LINKER_FLAGS_INIT=-fuse-ld=lld
+# Build everything
 cmake --build build
 ```
 
